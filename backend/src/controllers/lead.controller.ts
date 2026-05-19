@@ -88,9 +88,10 @@ export const exportLeadsCSV = asyncHandler(async (req: AuthRequest, res: Respons
 
   const leads = await Lead.find(filter).sort({ createdAt: -1 });
   const csvHeader = "Name,Email,Status,Source,Notes,Created At\n";
-  const csvRows = leads.map((lead) =>
-    [`"${lead.name}"`, `"${lead.email}"`, `"${lead.status}"`, `"${lead.source}"`, `"${lead.notes ?? ""}"`, `"${lead.createdAt.toISOString()}"`].join(",")
-  ).join("\n");
+  const csvRows = leads.map((lead) => {
+    const l = lead as typeof lead & { createdAt: Date };
+    return [`"${l.name}"`, `"${l.email}"`, `"${l.status}"`, `"${l.source}"`, `"${l.notes ?? ""}"`, `"${l.createdAt.toISOString()}"`].join(",");
+  }).join("\n");
 
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", "attachment; filename=leads.csv");
